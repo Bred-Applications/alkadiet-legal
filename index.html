@@ -52,18 +52,42 @@ blockquote p { margin: 0.4em 0; }
 ul, ol { padding-left: 1.35em; }
 li { margin: 0.4em 0; }
 .tablewrap { overflow-x: auto; margin: 1.4em 0; }
-table { border-collapse: collapse; width: 100%; font-size: 0.93rem; }
+/* Fixed layout: columns take their width from the layout, not from the
+   longest word in them. Without it a four-column table on a phone sizes
+   itself from content and squeezes columns to nothing. */
+table { border-collapse: collapse; width: 100%; font-size: 0.93rem; table-layout: fixed; }
 th, td {
   text-align: left; vertical-align: top; padding: 10px 14px;
   border-bottom: 1px solid var(--hairline);
-  /* An email address is one unbreakable word: on a phone it pushed the
-     column past the edge and got clipped. */
-  overflow-wrap: anywhere;
+  /* An email address is one unbreakable word and would otherwise push
+     its column past the edge. break-word, never anywhere: anywhere also
+     drops the cell's min-content width to a single character, which lets
+     a column collapse and stacks the text vertically. */
+  overflow-wrap: break-word;
 }
 th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faded); }
 tbody tr:last-child td { border-bottom: 0; }
 table.noheader thead { display: none; }
 table.noheader td:first-child { width: 34%; font-weight: 600; }
+/* A wide table becomes a list of labelled blocks on a narrow screen.
+   Four columns on a phone give each one about 85px, which is narrower
+   than the words that have to go in them. */
+@media (max-width: 640px) {
+  table.wide { table-layout: auto; }
+  table.wide thead { display: none; }
+  table.wide, table.wide tbody, table.wide tr, table.wide td { display: block; width: 100%; }
+  table.wide tr {
+    border-bottom: 1px solid var(--hairline); padding: 6px 0 12px;
+  }
+  table.wide tbody tr:last-child { border-bottom: 0; }
+  table.wide td { border-bottom: 0; padding: 6px 0; }
+  table.wide td::before {
+    content: attr(data-label);
+    display: block; margin-bottom: 2px;
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--faded);
+  }
+}
 footer.foot {
   margin-top: 3.5em; padding-top: 1.4em; border-top: 1px solid var(--hairline);
   font-size: 13px; color: var(--faded);

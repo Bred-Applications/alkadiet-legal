@@ -52,18 +52,42 @@ blockquote p { margin: 0.4em 0; }
 ul, ol { padding-left: 1.35em; }
 li { margin: 0.4em 0; }
 .tablewrap { overflow-x: auto; margin: 1.4em 0; }
-table { border-collapse: collapse; width: 100%; font-size: 0.93rem; }
+/* Fixed layout: columns take their width from the layout, not from the
+   longest word in them. Without it a four-column table on a phone sizes
+   itself from content and squeezes columns to nothing. */
+table { border-collapse: collapse; width: 100%; font-size: 0.93rem; table-layout: fixed; }
 th, td {
   text-align: left; vertical-align: top; padding: 10px 14px;
   border-bottom: 1px solid var(--hairline);
-  /* An email address is one unbreakable word: on a phone it pushed the
-     column past the edge and got clipped. */
-  overflow-wrap: anywhere;
+  /* An email address is one unbreakable word and would otherwise push
+     its column past the edge. break-word, never anywhere: anywhere also
+     drops the cell's min-content width to a single character, which lets
+     a column collapse and stacks the text vertically. */
+  overflow-wrap: break-word;
 }
 th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faded); }
 tbody tr:last-child td { border-bottom: 0; }
 table.noheader thead { display: none; }
 table.noheader td:first-child { width: 34%; font-weight: 600; }
+/* A wide table becomes a list of labelled blocks on a narrow screen.
+   Four columns on a phone give each one about 85px, which is narrower
+   than the words that have to go in them. */
+@media (max-width: 640px) {
+  table.wide { table-layout: auto; }
+  table.wide thead { display: none; }
+  table.wide, table.wide tbody, table.wide tr, table.wide td { display: block; width: 100%; }
+  table.wide tr {
+    border-bottom: 1px solid var(--hairline); padding: 6px 0 12px;
+  }
+  table.wide tbody tr:last-child { border-bottom: 0; }
+  table.wide td { border-bottom: 0; padding: 6px 0; }
+  table.wide td::before {
+    content: attr(data-label);
+    display: block; margin-bottom: 2px;
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--faded);
+  }
+}
 footer.foot {
   margin-top: 3.5em; padding-top: 1.4em; border-top: 1px solid var(--hairline);
   font-size: 13px; color: var(--faded);
@@ -96,7 +120,7 @@ footer.foot {
 <hr>
 <h2>2. The short version</h2>
 <p>Alkadiet is built local-first. There is no Alkadiet account, no Alkadiet user database, and no server that holds your food log.</p>
-<ul><li><strong>Your log lives on your device</strong> and, if you use iCloud, in <strong>your own private iCloud storage</strong>. We cannot read it. Not "we choose not to" — we have no technical access to it.</li><li><strong>Two things leave your device</strong>, and only these: a meal photo when <em>you</em> press scan, and anonymous counts of which screens people reach.</li><li><strong>We show no ads, run no advertising SDKs, do no cross-app tracking, and sell nothing to anyone.</strong> There is no "third party we may share with" clause in this policy because there is no such sharing.</li><li><strong>Payments go through Apple.</strong> We never see your card, your name or your address.</li><li><strong>Photo scanning uses an AI vision model</strong> run by Google. See §5 and the separate AI transparency note.</li></ul>
+<ul><li><strong>Your log lives on your device</strong> and, if you use iCloud, in <strong>your own private iCloud storage</strong>. We cannot read it. Not "we choose not to" — we have no technical access to it.</li><li><strong>Two things leave your device</strong>, and only these: a meal photo when <em>you</em> press scan, and anonymous counts of which screens people reach.</li><li><strong>We show no ads, run no advertising SDKs, do no cross-app tracking, and sell nothing to anyone.</strong> There is no "third party we may share with" clause in this policy because there is no such sharing.</li><li><strong>Payments go through Apple.</strong> We never see your card, your name or your address.</li><li><strong>Photo scanning uses an AI vision model</strong> run by Google. You start every scan yourself, and you correct its guesses before anything is logged. See §5 and §11.</li></ul>
 <hr>
 <h2>3. What stays on your device</h2>
 <p>The following never reaches us, and never leaves your device except into your own private iCloud:</p>
@@ -121,7 +145,7 @@ footer.foot {
 <p>Alkadiet Plus is sold through <strong>Apple's In-App Purchase</strong>. Apple processes the payment; we receive no card details, no billing address and no name. The app asks Apple's StoreKit whether an active subscription exists and stores nothing about it except what iOS itself keeps. Apple's handling of your purchase is governed by Apple's own privacy policy and the Apple Media Services Terms.</p>
 <hr>
 <h2>6. Who else is involved</h2>
-<div class="tablewrap"><table><thead><tr><th>Recipient</th><th>What they get</th><th>Where</th><th>Basis for transfer outside the EU/EEA</th></tr></thead><tbody><tr><td><strong>Apple</strong> (Apple Inc. / Apple Distribution International)</td><td>App distribution, payment, iCloud storage of <em>your own</em> data</td><td>Ireland / USA</td><td>Apple is certified under the EU–US Data Privacy Framework; Apple's SCCs apply</td></tr><tr><td><strong>Google</strong> (Gemini API)</td><td>Meal photos you scan</td><td>USA / global</td><td>Google Cloud/Gemini standard contractual clauses; Google LLC is DPF-certified</td></tr><tr><td><strong>Railway</strong> (Railway Corp.)</td><td>Hosts our stateless relay; sees the image in transit and your IP</td><td>USA</td><td>Standard contractual clauses per Railway's DPA</td></tr><tr><td><strong>TelemetryDeck</strong> (Wanderwege GmbH)</td><td>Anonymous event counts, install identifier, IP at ingest</td><td>Germany (EU)</td><td>No transfer — processing stays in the EU</td></tr></tbody></table></div>
+<div class="tablewrap"><table class="wide"><thead><tr><th>Recipient</th><th>What they get</th><th>Where</th><th>Basis for transfer outside the EU/EEA</th></tr></thead><tbody><tr><td data-label="Recipient"><strong>Apple</strong> (Apple Inc. / Apple Distribution International)</td><td data-label="What they get">App distribution, payment, iCloud storage of <em>your own</em> data</td><td data-label="Where">Ireland / USA</td><td data-label="Basis for transfer outside the EU/EEA">Apple is certified under the EU–US Data Privacy Framework; Apple's SCCs apply</td></tr><tr><td data-label="Recipient"><strong>Google</strong> (Gemini API)</td><td data-label="What they get">Meal photos you scan</td><td data-label="Where">USA / global</td><td data-label="Basis for transfer outside the EU/EEA">Google Cloud/Gemini standard contractual clauses; Google LLC is DPF-certified</td></tr><tr><td data-label="Recipient"><strong>Railway</strong> (Railway Corp.)</td><td data-label="What they get">Hosts our stateless relay; sees the image in transit and your IP</td><td data-label="Where">USA</td><td data-label="Basis for transfer outside the EU/EEA">Standard contractual clauses per Railway's DPA</td></tr><tr><td data-label="Recipient"><strong>TelemetryDeck</strong> (Wanderwege GmbH)</td><td data-label="What they get">Anonymous event counts, install identifier, IP at ingest</td><td data-label="Where">Germany (EU)</td><td data-label="Basis for transfer outside the EU/EEA">No transfer — processing stays in the EU</td></tr></tbody></table></div>
 <p>We use no other processors. There is no advertising partner, no CRM, no email marketing tool, and no data broker in this list because there are none.</p>
 <hr>
 <h2>7. How long we keep things</h2>
@@ -142,7 +166,7 @@ footer.foot {
 <hr>
 <h2>11. Automated decisions and AI</h2>
 <p>Photo scanning uses an AI model to recognise foods. It does not make any decision about you: it proposes food names and weights, which you review and correct before anything is logged. There is no automated decision-making with legal or similarly significant effect for you within the meaning of GDPR Art. 22.</p>
-<p>How we handle the EU AI Act is written up separately in AI-ACT-COMPLIANCE.md.</p>
+<p>The photo scan is the only AI in Alkadiet. It runs only when you start it, it returns suggestions you can change or reject, and it is never used to evaluate you. We keep a written assessment of it under the EU AI Act — if you want to see how we reached our conclusions, write to contact@bredapplications.com and we will send it to you.</p>
 <hr>
 <h2>12. Changes to this policy</h2>
 <p>If we change how the app handles data, we update this policy and the "last updated" date, and we describe what changed. For a change that materially reduces your privacy, we will tell you in the app before it takes effect.</p>
